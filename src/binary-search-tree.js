@@ -15,9 +15,9 @@ class BinarySearchTree {
 
   add(data) {
     
-    const treeNode = this.find(data);
+    const hasData = this.has(data);
     
-    if (treeNode) {
+    if (hasData) {
       return;
     }
     
@@ -82,6 +82,7 @@ class BinarySearchTree {
 
   findMin(node) {
     let left = node;
+
     while (left.left) {
       left = left.left;
     }
@@ -98,6 +99,7 @@ class BinarySearchTree {
 
     let parent = this._root;
 
+    // in case data is the root, connect left branch into minimum on the right branch
     if (parent.data === data) {
       const rightMin = this.findMin(parent.right);
       rightMin.left = parent.left;
@@ -105,17 +107,9 @@ class BinarySearchTree {
       return;
     }
 
-    let sub;
-    let direction;
+    let direction = data > parent.data ? 'right' : 'left';
+    let sub = parent[direction];
 
-    if (data > parent.data) {
-      sub = parent.right;
-      direction = 'right';
-    } else {
-      sub = parent.left;
-      direction = 'left';
-    }
-    
     while (true) {
       if (data > sub.data) {
         parent = sub;
@@ -131,26 +125,35 @@ class BinarySearchTree {
         continue;
       }
 
+      // data === sub.data
+
       const { left, right } = sub;
 
+      // no sub branches
       if (left === null && right === null) {
         parent[direction] = null;
         return;
       }
 
+      // no left branch
       if (left === null) {
-        parent[direction] = sub.right;
+        parent[direction] = right;
         return;
       }
 
+      // no right branch
       if (right === null) {
-        parent[direction] = sub.left;
+        parent[direction] = left;
         return;
       }
 
-      const rightMin = this.findMin(sub.right);
-      rightMin.left = sub.left;
-      parent[direction] = sub.right;
+      // both branches there
+      // find the minimum on the right branch, and connect sub.left into it
+      // connect sub.right branch into parent's left|right branch
+
+      const rightMin = this.findMin(right);
+      rightMin.left = left;
+      parent[direction] = right;
 
       return;
     }
